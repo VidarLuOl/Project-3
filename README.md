@@ -34,7 +34,22 @@ Vi må inkludere minst 2 av følgende metoder
 ## Eks
 Utforske alle mulighetene for Descision trees via Bagging og Voting Classifiers, til Random Forest, bootsing og tilslutt XGboost.
 
-# Oppgaven!
+# hovedoppgaven
+1. Vi har et klassifisjons problem.
+2. Bruk minst 2 av metodene
+    1. Linear regression (Ridge og regression)
+    2. Logistic Regression
+    3. Neural Networks
+    4. Convolution Neural Networks
+    5. Recurrent Neural Networks
+    6. Adversarial Neural Networks
+    7. Support Vector Machines (SVM)
+    8. Decision Trees
+    9. Random Forests
+    10. Bagging
+    11. Boosting
+
+# 30 poengs oppgaven
 
 1. Utfør bias-variance tradeoff ved å bruke minst 3 av hovedalgorithmene vi har diskutert i kurset. Vi bruker et classification problem.
 2. Vi bruker bootstrap for resampling for å få best mulig estimat.
