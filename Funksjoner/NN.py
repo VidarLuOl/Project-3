@@ -1,5 +1,5 @@
 import numpy as np
-
+"""
 class NeuralNetwork():
     def __init__(self, X, Y, h_layers, h_nodes):
         self.X = X
@@ -16,3 +16,5 @@ class layer:
     def __init__(self, input, output):
         # self.weight = np.random.randn()
         self.input = input
+        
+"""
