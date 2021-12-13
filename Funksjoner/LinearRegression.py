@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+
 
 
 def OLSstoopid(X_train, X_test, y_train, y_test, degree):
@@ -196,7 +197,7 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     plt.legend()
     plt.show()
     
-    plt.figure()
+    plt.figure()    
     plt.title("R2")
     plt.plot(polydegree, r2_train, label='R2 train')
     plt.plot(polydegree, r2_test, label='R2 test')
@@ -205,9 +206,9 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     
     plt.figure()
     plt.title("Error, bias, variance")
-    plt.logy(polydegree, error, label='Error')
-    plt.logy(polydegree, bias, label='Bias')
-    plt.logy(polydegree, variance, label='Variance')
+    plt.loglog(polydegree, error, label='Error')
+    plt.loglog(polydegree, bias, label='Bias')
+    plt.loglog(polydegree, variance, label='Variance')
     plt.legend()
     plt.show()
         
@@ -219,18 +220,170 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     
     
     
+def RidgeRegression(X_train, X_test, y_train, y_test, input_lambdas, degree):
+    m,n = np.shape(X_train)
+    p = len(input_lambdas)
+    
+    TestError = np.zeros(p)
+    TrainError = np.zeros(p)
+    lambdas = np.zeros(p)
+    error = np.zeros(p)
+    variance = np.zeros(p)
+    bias = np.zeros(p)
+    rmse_train = np.zeros(p)
+    rmse_test = np.zeros(p)
+    r2_train = np.zeros(p)
+    r2_test = np.zeros(p)
+    
+    scaler = StandardScaler(with_std=False)
+    scaler.fit(X_train)
+    x_train_scaled = scaler.transform(X_train)
+    x_test_scaled = scaler.transform(X_test)   
+    
+
+    
+    for i in range(p):
+        lamb = input_lambdas[i]
+        lin_model = make_pipeline(PolynomialFeatures(degree=degree), Ridge(alpha=lamb, fit_intercept=False))
+        y_fit = 0
+        y_pred = 0
+        
+        for feature in range(n):
+            clf = lin_model.fit(x_train_scaled[:,feature].reshape(-1,1), y_train)
+           
+            y_fit += clf.predict(x_train_scaled[:,feature].reshape(-1,1))/n
+            y_pred += clf.predict(x_test_scaled[:,feature].reshape(-1,1))/n
+        
+        lambdas[i] = lamb
+        TestError[i] = np.mean( np.mean((y_test - y_pred)**2) )
+        TrainError[i] = np.mean( np.mean((y_train - y_fit)**2) )
+        
+        error[i] = np.mean( np.mean((y_test - y_pred)**2) )
+        bias[i] = np.mean( (y_test - np.mean(y_pred))**2 )
+        variance[i] = np.mean(np.var(y_pred) )
+        
+        rmse_train[i] = (np.sqrt(mean_squared_error(y_train, y_fit)))
+        r2_train[i] = r2_score(y_train, y_fit)
+        
+        rmse_test[i] = (np.sqrt(mean_squared_error(y_test, y_pred)))
+        r2_test[i] = r2_score(y_test, y_pred)
+        
+
+    plt.figure()
+    plt.title("Error")
+    plt.semilogy(lambdas, TestError, label='Test Error')
+    plt.semilogy(lambdas, TrainError, label='Train Error')
+    plt.legend()
+    plt.show()
+    
+    plt.figure()
+    plt.title("RMS")    
+    plt.semilogy(lambdas, rmse_train, label='RMS train')
+    plt.semilogy(lambdas, rmse_test, label='RMS test')
+    plt.legend()
+    plt.show()
+    
+    plt.figure()    
+    plt.title("R2")
+    plt.semilogy(lambdas, r2_train, label='R2 train')
+    plt.semilogy(lambdas, r2_test, label='R2 test')
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.title("Error, bias, variance")
+    plt.loglog(lambdas, error, label='Error')
+    plt.loglog(lambdas, bias, label='Bias')
+    plt.loglog(lambdas, variance, label='Variance')
+    plt.legend()
+    plt.show()
+
+    return 0
+
     
     
     
     
+def LassoRegression(X_train, X_test, y_train, y_test, input_lambdas, degree):
+    m,n = np.shape(X_train)
+    p = len(input_lambdas)
     
+    TestError = np.zeros(p)
+    TrainError = np.zeros(p)
+    lambdas = np.zeros(p)
+    error = np.zeros(p)
+    variance = np.zeros(p)
+    bias = np.zeros(p)
+    rmse_train = np.zeros(p)
+    rmse_test = np.zeros(p)
+    r2_train = np.zeros(p)
+    r2_test = np.zeros(p)
     
+    scaler = StandardScaler(with_std=False)
+    scaler.fit(X_train)
+    x_train_scaled = scaler.transform(X_train)
+    x_test_scaled = scaler.transform(X_test)   
     
+
     
+    for i in range(p):
+        lamb = input_lambdas[i]
+        lin_model = make_pipeline(PolynomialFeatures(degree=degree), Lasso(alpha=lamb, fit_intercept=False))
+        y_fit = 0
+        y_pred = 0
+        
+        for feature in range(n):
+            clf = lin_model.fit(x_train_scaled[:,feature].reshape(-1,1), y_train)
+           
+            y_fit += clf.predict(x_train_scaled[:,feature].reshape(-1,1))/n
+            y_pred += clf.predict(x_test_scaled[:,feature].reshape(-1,1))/n
+        
+        lambdas[i] = lamb
+        TestError[i] = np.mean( np.mean((y_test - y_pred)**2) )
+        TrainError[i] = np.mean( np.mean((y_train - y_fit)**2) )
+        
+        error[i] = np.mean( np.mean((y_test - y_pred)**2) )
+        bias[i] = np.mean( (y_test - np.mean(y_pred))**2 )
+        variance[i] = np.mean(np.var(y_pred) )
+        
+        rmse_train[i] = (np.sqrt(mean_squared_error(y_train, y_fit)))
+        r2_train[i] = r2_score(y_train, y_fit)
+        
+        rmse_test[i] = (np.sqrt(mean_squared_error(y_test, y_pred)))
+        r2_test[i] = r2_score(y_test, y_pred)
+        
+        
+    """
+    plt.figure()
+    plt.title("Error")
+    plt.semilogy(lambdas, TestError, label='Test Error')
+    plt.semilogy(lambdas, TrainError, label='Train Error')
+    plt.legend()
+    plt.show()
     
+    plt.figure()
+    plt.title("RMS")    
+    plt.semilogy(lambdas, rmse_train, label='RMS train')
+    plt.semilogy(lambdas, rmse_test, label='RMS test')
+    plt.legend()
+    plt.show()
     
-    
-    
+    plt.figure()    
+    plt.title("R2")
+    plt.semilogy(lambdas, r2_train, label='R2 train')
+    plt.semilogy(lambdas, r2_test, label='R2 test')
+    plt.legend()
+    plt.show()
+    """
+    plt.figure()
+    plt.title("Error, bias, variance")
+    plt.loglog(lambdas, error, label='Error')
+    plt.loglog(lambdas, bias, label='Bias')
+    plt.loglog(lambdas, variance, label='Variance')
+    plt.legend()
+    plt.show()
+
+    return 0
     
     
     
