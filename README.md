@@ -4,7 +4,7 @@
 
 [Bankruptcy](https://www.kaggle.com/fedesoriano/company-bankruptcy-prediction)
 
-[Overleaf](https://www.overleaf.com/project/6167f4a28b15e3ffa0aab71c)
+[Overleaf](https://www.overleaf.com/project/61b34bd3ea7156320da12e0c)
 
 Finn eget dataset og driv forskning med, eller bruk
 1. Kaggle
