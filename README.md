@@ -9,7 +9,7 @@
 Finn eget dataset og driv forskning med, eller bruk
 1. Kaggle
 2. https://archive.ics.uci.edu/ml/index.php
-3. Andre kilder(Altså ka en vill?)
+3. Andre kilder(Altså ka en vill?)?
 
 # Raport mal
 1. Strukturer og les dataen
