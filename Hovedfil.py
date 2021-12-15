@@ -6,7 +6,8 @@ from Funksjoner.LinearRegression import OLS, OLSnFeatures, RidgeRegression, Lass
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score
 
-
+import warnings
+warnings.filterwarnings("ignore")
 
 """Variabler"""
 H_layers = 2 # Antall hidden layers
@@ -100,24 +101,21 @@ OLS(x_train, x_test, y_train, y_test, 25)
 """
 np.random.seed(2019)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35)
-OLSnFeatures(x_train, x_test, y_train, y_test, 25)
+OLSnFeatures(x_train, x_test, y_train, y_test, 30)
 """
 
-"""
 #good_rgn = [742873, 515295, 837215, 1763]
 np.random.seed(2019)
-lambdas = np.logspace(-25, -0.5, 10)
+lambdas = np.logspace(-15, 1.5, 40)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35)
 RidgeRegression(x_train, x_test, y_train, y_test, lambdas, 10)
-"""
 
 
 np.random.seed(2019)
-lambdas = np.logspace(-25, 1.5, 16)
+lambdas = np.logspace(-15, 1.5, 40)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35)
 LassoRegression(x_train, x_test, y_train, y_test, lambdas, 10)
 
-    
     
     
     
