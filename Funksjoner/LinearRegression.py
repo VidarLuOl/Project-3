@@ -5,10 +5,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler, MinMaxScaler
+"""
 import warnings
 warnings.filterwarnings("ignore")
+"""
 
 def OLSstoopid(X_train, X_test, y_train, y_test, degree):
     
@@ -61,8 +62,8 @@ def OLSstoopid(X_train, X_test, y_train, y_test, degree):
 
 
 
-def OLS(X_train, X_test, y_train, y_test, maxdegree):
-    
+def OLS(X_train, X_test, y_train, y_test, maxdegree, nfeatures):
+    m,n = np.shape(X_train)
     TestError = np.zeros(maxdegree)
     TrainError = np.zeros(maxdegree)
     polydegree = np.zeros(maxdegree)
@@ -79,29 +80,40 @@ def OLS(X_train, X_test, y_train, y_test, maxdegree):
     x_train_scaled = scaler.transform(X_train)
     x_test_scaled = scaler.transform(X_test)
     
-    for degree in range(maxdegree):
-        lin_model = make_pipeline(PolynomialFeatures(degree=degree), LinearRegression(fit_intercept=False))
+    
+    plt.figure()
+    for feature in range(nfeatures):
+        for degree in range(maxdegree):
+            lin_model = make_pipeline(PolynomialFeatures(degree=degree), LinearRegression(fit_intercept=False))
+    
+            
+            clf = lin_model.fit(x_train_scaled[:,feature].reshape(-1,1), y_train)
+    
+            y_fit = clf.predict(x_train_scaled[:,feature].reshape(-1,1))
+            y_pred = clf.predict(x_test_scaled[:,feature].reshape(-1,1)) 
+            
+            polydegree[degree] = degree
+            TestError[degree] = np.mean( np.mean((y_test - y_pred)**2) )
+            TrainError[degree] = np.mean( np.mean((y_train - y_fit)**2) )
+            
+            error[degree] = np.mean( np.mean((y_test - y_pred)**2) )
+            bias[degree] = np.mean( (y_test - np.mean(y_pred))**2 )
+            variance[degree] = np.mean(np.var(y_pred))
+            
+            rmse_train[degree] = (np.sqrt(mean_squared_error(y_train, y_fit)))
+            r2_train[degree] = r2_score(y_train, y_fit)
+            
+            rmse_test[degree] = (np.sqrt(mean_squared_error(y_test, y_pred)))
+            r2_test[degree] = r2_score(y_test, y_pred)
+            
+        
+        plt.title("Error")
+        plt.semilogy(polydegree, TestError, color = "blue")
+        plt.semilogy(polydegree, TrainError, color = "red")
 
+    plt.show()
         
-        clf = lin_model.fit(x_train_scaled[:,0].reshape(-1,1), y_train)
-
-        y_fit = clf.predict(x_train_scaled[:,0].reshape(-1,1))
-        y_pred = clf.predict(x_test_scaled[:,0].reshape(-1,1)) 
-        
-        polydegree[degree] = degree
-        TestError[degree] = np.mean( np.mean((y_test - y_pred)**2) )
-        TrainError[degree] = np.mean( np.mean((y_train - y_fit)**2) )
-        
-        error[degree] = np.mean( np.mean((y_test - y_pred)**2) )
-        bias[degree] = np.mean( (y_test - np.mean(y_pred))**2 )
-        variance[degree] = np.mean(np.var(y_pred))
-        
-        rmse_train[degree] = (np.sqrt(mean_squared_error(y_train, y_fit)))
-        r2_train[degree] = r2_score(y_train, y_fit)
-        
-        rmse_test[degree] = (np.sqrt(mean_squared_error(y_test, y_pred)))
-        r2_test[degree] = r2_score(y_test, y_pred)
-        
+    """
     plt.figure()
     plt.title("Error")
     plt.semilogy(polydegree, TestError, label='Test Error')
@@ -130,7 +142,7 @@ def OLS(X_train, X_test, y_train, y_test, maxdegree):
     plt.loglog(polydegree, variance, label='Variance')
     plt.legend()
     plt.show()
-        
+    """ 
     return 0
     
     
@@ -139,18 +151,18 @@ def OLS(X_train, X_test, y_train, y_test, maxdegree):
 def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     m,n = np.shape(X_train)
     
-    TestError = np.zeros(maxdegree)
-    TrainError = np.zeros(maxdegree)
-    polydegree = np.zeros(maxdegree)
-    error = np.zeros(maxdegree)
-    variance = np.zeros(maxdegree)
-    bias = np.zeros(maxdegree)
-    score = np.zeros(maxdegree)
+    TestError = np.zeros(maxdegree-1)
+    TrainError = np.zeros(maxdegree-1)
+    polydegree = np.linspace(1, maxdegree-1, maxdegree-1)
+    error = np.zeros(maxdegree-1)
+    variance = np.zeros(maxdegree-1)
+    bias = np.zeros(maxdegree-1)
+    score = np.zeros(maxdegree-1)
 
-    rmse_train = np.zeros(maxdegree)
-    rmse_test = np.zeros(maxdegree)
-    r2_train = np.zeros(maxdegree)
-    r2_test = np.zeros(maxdegree)
+    rmse_train = np.zeros(maxdegree-1)
+    rmse_test = np.zeros(maxdegree-1)
+    r2_train = np.zeros(maxdegree-1)
+    r2_test = np.zeros(maxdegree-1)
     
     scaler = StandardScaler(with_std=False)
     scaler.fit(X_train)
@@ -159,7 +171,7 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     
 
 
-    for degree in range(maxdegree):
+    for degree in range(1,maxdegree-1):
         y_fit = 0
         y_pred = 0
         classification_error = 0
@@ -172,25 +184,28 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
             y_pred += clf.predict(x_test_scaled[:,feature].reshape(-1,1))/n
 
             
+        #print("")
         for _ in y_pred:
             if _ <= 0:
-                classification_error += 1
                 
+                #print(_)
+                classification_error += 1
+        #print("")
         score[degree] = classification_error/m
 
-        polydegree[degree] = degree
         TestError[degree] = np.mean( np.mean((y_test - y_pred)**2) )
         TrainError[degree] = np.mean( np.mean((y_train - y_fit)**2) )
         
         error[degree] = np.mean( np.mean((y_test - y_pred)**2) )
         bias[degree] = np.mean( (y_test - np.mean(y_pred))**2 )
         variance[degree] = np.mean( np.var(y_pred) )
-
+        
         rmse_train[degree] = (np.sqrt(mean_squared_error(y_train, y_fit)))
         r2_train[degree] = r2_score(y_train, y_fit)
         
         rmse_test[degree] = (np.sqrt(mean_squared_error(y_test, y_pred)))
         r2_test[degree] = r2_score(y_test, y_pred)
+
 
     """
     plt.figure()
@@ -223,7 +238,7 @@ def OLSnFeatures(X_train, X_test, y_train, y_test, maxdegree):
     plt.show()
     """
     plt.figure()
-    plt.plot(polydegree, score, label = 'score classification')
+    plt.plot(polydegree, 1-score, label = 'score classification')
     plt.show()
     
     return 0
@@ -369,6 +384,7 @@ def LassoRegression(X_train, X_test, y_train, y_test, input_lambdas, degree):
 
         for _ in y_pred:
             if _ <= 0:
+                
                 classification_error += 1
                 
         score[i] = classification_error/m
