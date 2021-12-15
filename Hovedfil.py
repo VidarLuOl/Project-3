@@ -76,22 +76,22 @@ def RV():
     """Variabler"""
     correlation_limit = 0.85 #Hvis correlasjonen mellom 2 features er over limit, så fjernes den ene
     PCA_n = 2 #Redusere dataen ned til n features
-    p = 0.05
+    p = 0.05 #P-verdien
     """_________"""
 
     Selection = RemoveVariable(Pandas_Bankruptcy)
 
     # Selection.Corre(correlation_limit)
 
-    # Selection.PCA(PCA_n)
+    Selection.PCA(PCA_n)
 
-    Selection.BE(p)
+    # Selection.BE(p)
 
     return Selection.data
 
 if __name__ == "__main__":
     Pandas_Bankruptcy = RV() #Fjerner variabler, kan brukes samtidig som de andre funksjonene
-    print("New amount of features: ", np.shape(Pandas_Bankruptcy)[1], ", Shape: ", np.shape(Pandas_Bankruptcy))
+    # print("New amount of features: ", np.shape(Pandas_Bankruptcy)[1], ", Shape: ", np.shape(Pandas_Bankruptcy))
     # NN() #Neural Network
     # kNN()
     # dt()
