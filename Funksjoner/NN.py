@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score, r2_score, mean_squared_error
 
 # from keras import Sequential
 # from keras.layers import Dense
@@ -68,10 +68,22 @@ class Kern:
             self.layers.compile(optimizer = sgd, loss="binary_crossentropy", metrics=["accuracy"])
             for j, batchsize_tmp in enumerate(self.batchsize):
                 NN_keras[i][j] = self.layers.fit(X_train, y_train, batch_size=batchsize_tmp, epochs=10, shuffle=True, verbose=0)
-                self.layers.evaluate(X_test, y_test)
+                # self.layers.evaluate(X_test, y_test)
 
                 y_pred = self.layers.predict(X_test)
+                y_pred = (y_pred > 0.5)
+                print("Batchsize:", self.batchsize[j], "Eta:", self.eta[i])
                 print(confusion_matrix(y_test, y_pred))
+
+                acc = accuracy_score(y_test, y_pred)
+                # print("Accuracy:", acc)
+
+                r2 = r2_score(y_test, y_pred)
+                # print("R2;", r2)
+
+                mse = mean_squared_error(y_test, y_pred)
+                # print("MSE:", mse) 
+                print()
 
 
         # y_pred = self.layers.predict(X_test)

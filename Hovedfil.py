@@ -6,6 +6,9 @@ from Funksjoner.NN import * #Neural network
 from Funksjoner.RV import * #Remove Variables
 from Funksjoner.kNN import * #K nearest Neighbor
 from Funksjoner.DT import * #Decision tree
+from Funksjoner.LinearRegression import OLS, OLSnFeatures, RidgeRegression, LassoRegression #Linear Regression
+import warnings
+warnings.filterwarnings("ignore")
 
 """Lese inn data"""
 Pandas_Bankruptcy = pd.read_csv("data.csv")
@@ -15,13 +18,38 @@ x = np.array(Pandas_Bankruptcy)[:, 1:] # (6819, 95)
 np.random.seed(200)
 """______________"""
 
+def LR():
+    """____OLS feature(s)_____"""
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=2019)
+    OLS(x_train, x_test, y_train, y_test, 20, [0,1,2])
+
+    """_____OLS all features_____"""
+
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35, random_state=2019)
+    OLSnFeatures(x_train, x_test, y_train, y_test, 26)
+
+
+    """____Ridge regression____"""
+
+    lambdas = np.logspace(-15, 1.5, 50)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35, random_state=2019)
+    RidgeRegression(x_train, x_test, y_train, y_test, lambdas, 10)
+
+
+    """____Lasso regression____"""
+
+    lambdas = np.logspace(-15, 1.5, 40)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.35, random_state=2019)
+    LassoRegression(x_train, x_test, y_train, y_test, lambdas, 10)
 
 def NN():
     """Variabler"""
-    h_layers = 3 # Antall hidden layers
-    h_nodes = 5 # Antall hidden nodes
-    batch = [100] # Størrelse på batch
-    eta = [0.01]
+    h_layers = 7 # Antall hidden layers
+    h_nodes = 12 # Antall hidden nodes
+    batch = [10, 50, 100, 500] # Størrelse på batch
+    eta = [0.1, 0.01, 0.001]
     # Act = "SigmoidDer"
     """_________"""
 
@@ -83,15 +111,16 @@ def RV():
 
     # Selection.Corre(correlation_limit)
 
-    Selection.PCA(PCA_n)
+    # Selection.PCA(PCA_n)
 
-    # Selection.BE(p)
+    Selection.BE(p)
 
     return Selection.data
 
 if __name__ == "__main__":
     Pandas_Bankruptcy = RV() #Fjerner variabler, kan brukes samtidig som de andre funksjonene
     # print("New amount of features: ", np.shape(Pandas_Bankruptcy)[1], ", Shape: ", np.shape(Pandas_Bankruptcy))
+    LR() #Linear Regression
     # NN() #Neural Network
     # kNN()
     # dt()
